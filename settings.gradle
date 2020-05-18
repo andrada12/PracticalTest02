@@ -1,0 +1,2 @@
+include ':app', ':httpclient-4.4.1.2', ':jsoup-1.10.2'
+rootProject.name='PracticalTest02'

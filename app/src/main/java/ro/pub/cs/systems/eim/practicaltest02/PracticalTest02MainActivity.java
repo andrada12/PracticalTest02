@@ -23,10 +23,10 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
     private EditText clientPortEditText = null;
     private Spinner informationTypeSpinner = null;
     private Button getValueButton = null;
-    private TextView valueTextView = null;
+    private TextView rateTextView = null;
 
     private ServerThread serverThread = null;
-    //private ClientThread clientThread = null;
+    private ClientThread clientThread = null;
 
 
     private ConnectButtonClickListener connectButtonClickListener = new ConnectButtonClickListener();
@@ -49,6 +49,39 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
 
     }
 
+    private GetRateButtonClickListener getWeatherForecastButtonClickListener = new GetRateButtonClickListener();
+    private class GetRateButtonClickListener implements Button.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            String clientAddress = clientAddressEditText.getText().toString();
+            String clientPort = clientPortEditText.getText().toString();
+            if (clientAddress == null || clientAddress.isEmpty()
+                    || clientPort == null || clientPort.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] Client connection parameters should be filled!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (serverThread == null || !serverThread.isAlive()) {
+                Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] There is no server to connect to!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String informationType = informationTypeSpinner.getSelectedItem().toString();
+            if ( informationType == null || informationType.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] Parameters from client (city / information type) should be filled", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            rateTextView.setText(Constants.EMPTY_STRING);
+
+            clientThread = new ClientThread(
+                    clientAddress, Integer.parseInt(clientPort), informationType, rateTextView
+            );
+            clientThread.start();
+        }
+
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +96,8 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
         clientPortEditText = (EditText)findViewById(R.id.client_port_edit_text);
         informationTypeSpinner = (Spinner)findViewById(R.id.information_type_spinner);
         getValueButton = (Button)findViewById(R.id.get_weather_forecast_button);
-        //getValueButton.setOnClickListener(getWeatherForecastButtonClickListener);
-        valueTextView = (TextView)findViewById(R.id.weather_forecast_text_view);
+        getValueButton.setOnClickListener(getWeatherForecastButtonClickListener);
+        rateTextView = (TextView)findViewById(R.id.weather_forecast_text_view);
     }
 
 

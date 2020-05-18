@@ -15,9 +15,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
+import java.time.LocalTime;
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.NameValuePair;
@@ -63,10 +64,35 @@ public class CommunicationThread extends Thread {
                 return;
             }
             BitcoinValue data = serverThread.getData();
+            int hour = 0;
+            int minute = 0;
+            if(data != null && data.updated != null) {
+                String updated = data.updated;
+                String[] updatedItems = updated.split(" ");
+                String[] times = updatedItems[3].split(":");
+            }
             BitcoinValue bitcoinValue = null;
-            if (false) {
+
+            Date date =  new Date(System.currentTimeMillis());
+            date.toString();
+            Log.e("DATA   ", date.toString());
+
+            String[] data1 = data.toString().split(" ");
+            String[] data2 = data1[3].split(":");
+            int hor_now = Integer.parseInt (data2[0]);
+            int min_now = Integer.parseInt(data2[1]);
+
+
+            if (data != null && data.updated != null && hor_now == hour && min_now == minute) {
+
                 Log.i(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the cache...");
-               // weatherForecastInformation = data.get(city);
+
+                if(neededValue == "USD") {
+                    bitcoinValue.USD = data.USD;
+                }  else {
+                    bitcoinValue.EUR = data.EUR;
+                }
+
             } else {
                 Log.i(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the webservice...");
                 HttpClient httpClient = new DefaultHttpClient();
@@ -150,7 +176,7 @@ public class CommunicationThread extends Thread {
                     );*/
 
                     JSONObject time = content.getJSONObject("time");
-                    String updated = content.getString("updated");
+                    String updated = time.getString("updated");
 
                     JSONObject bpi = content.getJSONObject("bpi");
                     JSONObject rateValueArray = bpi.getJSONObject(neededValue);
